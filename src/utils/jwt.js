@@ -2,8 +2,8 @@ import logger from '#config/logger.js';
 import jwt from 'jsonwebtoken';
 
 const jwtSecret = process.env.JWT_SECRET || 'your_secret_key'; // Replace with your own secret key
-
 const JWT_EXPIRES_IN = '1d';
+
 
 export const jwttoken = {
   sign: payload => {
@@ -23,4 +23,5 @@ export const jwttoken = {
       throw new Error('Error verifying JWT token', { cause: error });
     }
   },
+
 };
