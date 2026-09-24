@@ -1,0 +1,68 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      NODE_OPTIONS: --experimental-vm-modules
+      # database.js parses DATABASE_URL at import time, so it must be a valid URL even when unused
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://test:test@localhost:5432/test' }}
+      ARCJET_KEY: ${{ secrets.ARCJET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run tests
+        run: npm test -- --json --outputFile=test-results.json
+
+      - name: Annotate test failures
+        if: failure()
+        run: |
+          [ -f test-results.json ] || exit 0
+          jq -r --arg ws "$GITHUB_WORKSPACE/" '
+            .testResults[] | .name as $f
+            | (.assertionResults[] | select(.status == "failed")
+               | "::error file=\($f | ltrimstr($ws)),title=\(.fullName)::\(.failureMessages | join(" ") | gsub("\n"; "%0A"))"),
+              (select(.status == "failed" and (.assertionResults | length) == 0)
+               | "::error file=\($f | ltrimstr($ws)),title=Test suite failed to run::\(.message | gsub("\n"; "%0A"))")
+          ' test-results.json
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Test summary
+        if: always()
+        run: |
+          {
+            echo "## Test Results"
+            if [ -f test-results.json ]; then
+              jq -r '"| Total | Passed | Failed | Pending |\n|---|---|---|---|\n| \(.numTotalTests) | \(.numPassedTests) | \(.numFailedTests) | \(.numPendingTests) |"' test-results.json
+            else
+              echo "Test results not available."
+            fi
+            echo
+            echo "## Coverage"
+            if [ -d coverage ]; then
+              echo "Coverage report uploaded as the \`coverage-report\` artifact (kept 30 days)."
+            else
+              echo "No coverage report generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
