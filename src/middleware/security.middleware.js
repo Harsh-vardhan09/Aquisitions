@@ -4,7 +4,6 @@ import { slidingWindow } from '@arcjet/node';
 
 export const securityMiddleware = async (req, res, next) => {
   try {
-
     const role = req.user?.role || 'guest';
 
     let limit;
@@ -45,7 +44,6 @@ export const securityMiddleware = async (req, res, next) => {
         message: 'Automated request are not allowed',
       });
     }
-    
 
     if (decision.isDenied && decision.reason.isShield()) {
       logger.warn('Shield request  blocked', {

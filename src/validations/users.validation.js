@@ -7,7 +7,13 @@ export const userIdSchema = z.object({
 export const updateUserSchema = z
   .object({
     name: z.string().trim().min(1).max(50).optional(),
-    email: z.string().max(255).toLowerCase().trim().email('Invalid email address').optional(),
+    email: z
+      .string()
+      .max(255)
+      .toLowerCase()
+      .trim()
+      .email('Invalid email address')
+      .optional(),
     role: z.enum(['user', 'admin']).optional(),
   })
   .strict()

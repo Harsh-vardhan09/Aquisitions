@@ -6,7 +6,10 @@ import {
   updateUser as updateUserService,
 } from '#services/user.services.js';
 import { formatValidationError } from '#utils/format.js';
-import { updateUserSchema, userIdSchema } from '#validations/users.validation.js';
+import {
+  updateUserSchema,
+  userIdSchema,
+} from '#validations/users.validation.js';
 
 const validationFailed = (res, error) =>
   res.status(400).json({
@@ -61,11 +64,15 @@ export const updateUser = async (req, res, next) => {
 
     if (!isAdmin && req.user.id !== id) {
       logger.warn(`User ${req.user.id} tried to update user ${id}`);
-      return res.status(403).json({ error: 'You can only update your own information' });
+      return res
+        .status(403)
+        .json({ error: 'You can only update your own information' });
     }
     if (updates.role && !isAdmin) {
       logger.warn(`User ${req.user.id} tried to change role of user ${id}`);
-      return res.status(403).json({ error: 'Only admins can change user roles' });
+      return res
+        .status(403)
+        .json({ error: 'Only admins can change user roles' });
     }
 
     const user = await updateUserService(id, updates);
@@ -91,7 +98,9 @@ export const deleteUser = async (req, res, next) => {
     const { id } = params.data;
     if (req.user.role !== 'admin' && req.user.id !== id) {
       logger.warn(`User ${req.user.id} tried to delete user ${id}`);
-      return res.status(403).json({ error: 'You can only delete your own account' });
+      return res
+        .status(403)
+        .json({ error: 'You can only delete your own account' });
     }
 
     const user = await deleteUserService(id);

@@ -2,10 +2,10 @@
 
 Express + Drizzle + Neon Postgres. The same Docker image runs in both environments. Only `DATABASE_URL` changes:
 
-| Env  | Compose file              | Env file           | `DATABASE_URL` points at                         |
-| ---- | ------------------------- | ------------------ | ------------------------------------------------ |
+| Env  | Compose file              | Env file           | `DATABASE_URL` points at                                        |
+| ---- | ------------------------- | ------------------ | --------------------------------------------------------------- |
 | Dev  | `docker-compose.dev.yml`  | `.env.development` | `postgres://neon:npg@neon-local:5432/neondb` (Neon Local proxy) |
-| Prod | `docker-compose.prod.yml` | `.env.production`  | `postgres://...neon.tech/neondb?sslmode=require` (Neon Cloud) |
+| Prod | `docker-compose.prod.yml` | `.env.production`  | `postgres://...neon.tech/neondb?sslmode=require` (Neon Cloud)   |
 
 `src/config/database.js` reads the host from `DATABASE_URL`. For a host other than `*.neon.tech` (i.e. Neon Local), it points the serverless driver at `http://<host>:5432/sql`. For `*.neon.tech` it uses the driver defaults. No code changes are needed between environments.
 

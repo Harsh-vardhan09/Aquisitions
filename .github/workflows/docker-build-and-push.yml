@@ -46,7 +46,7 @@ jobs:
         run: |
           {
             echo "## Docker image published"
-            echo "**Image:** \`${{ secrets.DOCKER_USERNAME }}/aquisitions\`"
+            echo "**Image:** \`${{ secrets.DOCKER_USERNAME }}/aquisitions-app\`"
             echo
             echo "**Tags:**"
             echo '```'
