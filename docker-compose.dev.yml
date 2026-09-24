@@ -1,0 +1,23 @@
+services:
+  neon-local:
+    image: neondatabase/neon_local:latest
+    # Reads NEON_API_KEY, NEON_PROJECT_ID, optional PARENT_BRANCH_ID.
+    env_file: .env.development
+    environment:
+      # Ephemeral: a fresh branch is created on start and deleted on stop.
+      DELETE_BRANCH: 'true'
+    ports:
+      - '5432:5432'
+
+  app:
+    build: .
+    env_file: .env.development
+    environment:
+      NODE_ENV: development
+    command: node --watch src/index.js
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - neon-local
